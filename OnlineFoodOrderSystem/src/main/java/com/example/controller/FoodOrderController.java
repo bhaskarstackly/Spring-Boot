@@ -3,6 +3,7 @@ package com.example.controller;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -28,9 +29,9 @@ public class FoodOrderController {
         this.foodOrderService = foodOrderService;
     }
 
-    @PostMapping("/addOrders")
-    public List<FoodOrder> addOrders(@RequestBody List<@Valid FoodOrder> requests) {
-        return foodOrderService.addOrders(requests);
+    @PostMapping("/addOrder")
+    public FoodOrder addOrders(@Valid @RequestBody FoodOrder requests) {
+        return foodOrderService.addOrder(requests);
     }
     
     @GetMapping("/getAllOrders")

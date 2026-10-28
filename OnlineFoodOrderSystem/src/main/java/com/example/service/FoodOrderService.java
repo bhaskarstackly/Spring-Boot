@@ -10,152 +10,140 @@ import org.springframework.stereotype.Service;
 import com.example.exception.FoodOrderNotFoundException;
 import com.example.model.FoodOrder;
 
-
 @Service
 public class FoodOrderService {
-	
-	private int nextOrderId = 101;
 
-	    private List<FoodOrder> orders = new ArrayList<>();
-	    
-	    
-	    public List<FoodOrder> addOrders(List<FoodOrder> requests) {
+    private int nextOrderId = 101;
+    private List<FoodOrder> orders = new ArrayList<>();
 
-	        List<FoodOrder> addedOrders = new ArrayList<>();
+    public FoodOrder addOrder(FoodOrder request) {
 
-	        for (FoodOrder request : requests) {
+        FoodOrder order = new FoodOrder(
+            nextOrderId++,
+            request.getCustomerName().trim(),
+            request.getFoodItem().trim(),
+            request.getQuantity(),
+            request.getPrice()
+        );
 
-	            FoodOrder order = new FoodOrder(
-	                nextOrderId++,
-	                request.getCustomerName().trim(),
-	                request.getFoodItem().trim(),
-	                request.getQuantity(),
-	                request.getPrice()
-	            );
+        orders.add(order);
 
-	            orders.add(order);
-	            addedOrders.add(order);
-	        }
+        return order;
+    }
 
-	        return addedOrders;
-	    }
+    public List<FoodOrder> getAllOrders() {
+        return orders;
+    }
 
-	    
-	    public List<FoodOrder> getAllOrders() {
-	        return orders;
-	    }
+    public FoodOrder updateOrder(FoodOrder request) {
 
-	    
-	    public FoodOrder updateOrder(FoodOrder request) {
+        for (FoodOrder f : orders) {
 
-	        for (FoodOrder f : orders) {
+            if (f.getOrderId().equals(request.getOrderId())) {
+                f.setCustomerName(request.getCustomerName());
+                f.setFoodItem(request.getFoodItem());
+                f.setQuantity(request.getQuantity());
+                f.setPrice(request.getPrice());
 
-	            if (f.getOrderId() == request.getOrderId()) {
+                return f;
+            }
+        }
 
-	                f.setCustomerName(request.getCustomerName());
-	                f.setFoodItem(request.getFoodItem());
-	                f.setQuantity(request.getQuantity());
-	                f.setPrice(request.getPrice());
+        throw new FoodOrderNotFoundException("Food order not found with ID: " + request.getOrderId());
+    }
+    
 
-	                return f;
-	            }
-	        }
+    public void deleteOrder(Integer id) {
 
-	        throw new FoodOrderNotFoundException("Food order not found with ID: " + request.getOrderId());
-	    }
-	    
-	    
-	    public List<FoodOrder> deleteOrder(Integer id) {
+        boolean removed = orders.removeIf(order -> order.getOrderId().equals(id));
 
-	        boolean removed = orders.removeIf(order -> order.getOrderId() == id);
+        if (!removed) {
+            throw new FoodOrderNotFoundException("Food order not found with ID: " + id);
+        }
 
-	        if (!removed) { 
-	            throw new FoodOrderNotFoundException("Food order not found with ID: " + id);
-	        }
+    }
+    
 
-	        return orders;
-	    }
-	    
-	    
-	    public FoodOrder readByOrderId(Integer id) {
+    public FoodOrder readByOrderId(Integer id) {
 
-	        for (FoodOrder f : orders) {
+        for (FoodOrder f : orders) {
 
-	            if (f.getOrderId() == id) {
-	                return f;
-	            }
-	        }
-	        throw new FoodOrderNotFoundException("Food order not found with ID: " + id);
-	    }
-	    
-	    
-	    public FoodOrder patchOrder(Integer id, FoodOrder request) {
+            if (f.getOrderId().equals(id)) {
+                return f;
+            }
+        }
 
-	        for (FoodOrder f : orders) {
+        throw new FoodOrderNotFoundException("Food order not found with ID: " + id);
+    }
+    
 
-	            if (f.getOrderId() == id) {
+    public FoodOrder patchOrder(Integer id, FoodOrder request) {
 
-	                if (request.getCustomerName() != null) {
-	                    f.setCustomerName(request.getCustomerName().trim());
-	                }
+        for (FoodOrder f : orders) {
 
-	                if (request.getFoodItem() != null) {
-	                    f.setFoodItem(request.getFoodItem().trim());
-	                }
+            if (f.getOrderId().equals(id)) {
 
-	                if (request.getQuantity() != null) {
-	                    f.setQuantity(request.getQuantity());
-	                }
+                if (request.getCustomerName() != null) {
+                    f.setCustomerName(request.getCustomerName().trim());
+                }
 
-	                if (request.getPrice() != null) {
-	                    f.setPrice(request.getPrice());
-	                }
+                if (request.getFoodItem() != null) {
+                    f.setFoodItem(request.getFoodItem().trim());
+                }
 
-	                return f;
-	            }
-	        }
+                if (request.getQuantity() != null) {
+                    f.setQuantity(request.getQuantity());
+                }
 
-	        throw new FoodOrderNotFoundException("Food order not found with ID: " + id);
-	    }
-	    
-	    
-	    public Map<String, Integer> getFoodNameAndQuantity() {
+                if (request.getPrice() != null) {
+                    f.setPrice(request.getPrice());
+                }
 
-	        Map<String, Integer> result = new HashMap<>();
+                return f;
+            }
+        }
 
-	        for (FoodOrder f : orders) {
+        throw new FoodOrderNotFoundException("Food order not found with ID: " + id);
+    }
+    
 
-	            String foodName = f.getFoodItem();
-	            int quantity = f.getQuantity();
+    public Map<String, Integer> getFoodNameAndQuantity() {
 
-	            if (result.containsKey(foodName)) {
-	                result.put(foodName, result.get(foodName) + quantity);
-	            } else {
-	                result.put(foodName, quantity);
-	            }
-	        }
+        Map<String, Integer> result = new HashMap<>();
 
-	        return result;
-	    }
-	    
-	    
-	    public List<FoodOrder> getOrdersByFoodName(String foodName) {
+        for (FoodOrder f : orders) {
 
-	        List<FoodOrder> result = new ArrayList<>();
+            String foodName = f.getFoodItem();
+            int quantity = f.getQuantity();
 
-	        for (FoodOrder f : orders) {
+            if (result.containsKey(foodName)) {
+                result.put(foodName, result.get(foodName) + quantity);
+            } else {
+                result.put(foodName, quantity);
+            }
+        }
 
-	            if (f.getFoodItem().equalsIgnoreCase(foodName)) {
-	                result.add(f);
-	            }
-	        }
+        return result;
+    }
 
-	        if (result.isEmpty()) {
-	        	throw new FoodOrderNotFoundException("No orders found for food: " + foodName);
-	        }
+    
+    public List<FoodOrder> getOrdersByFoodName(String foodName) {
 
-	        return result;
-	    }
-	    
+        List<FoodOrder> result = new ArrayList<>();
+
+        for (FoodOrder f : orders) {
+
+            if (f.getFoodItem().equalsIgnoreCase(foodName)) {
+                result.add(f);
+            }
+        }
+
+        if (result.isEmpty()) {
+            throw new FoodOrderNotFoundException("No orders found for food: " + foodName);
+        }
+
+        return result;
+    }
+    
+    
 }
-	

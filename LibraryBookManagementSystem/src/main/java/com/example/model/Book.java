@@ -25,5 +25,7 @@ public class Book {
 	    @Positive(message = "Price must be positive")
 	    private Double price;
 
-	    private boolean available;
+	    @NotNull(message = "Availability is required")
+	    private Boolean available;
+
 }
